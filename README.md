@@ -10,7 +10,7 @@
 | 连续预分配基线、固定种子负载、逐步资源统计 | 已实现 |
 | 序列 fork 与写时复制 | 已实现，完整页/未满页及随机分支隔离测试通过 |
 | CPU 换出、换入与 LRU | 已实现有界主机存储、LRU、工作集固定和满容量交换；CPU 测试通过 |
-| 真实 KV 数据与引擎验证 | 已有 Qwen3 引擎，课程新机制待接入验证 |
+| 真实 KV 数据与引擎验证 | 已接入课程内存运行器与张量后端；CUDA/Qwen3 实测待在用户 GPU 上执行 |
 | 评测报告、设计图、答辩材料 | 随阶段完善 |
 
 持续批处理与 GPU 算子作为运行支撑。此次验收聚焦内存管理，详见[课程实施计划](docs/11-任务一验收与补齐方案.md)。
@@ -26,6 +26,16 @@ python3 simulate.py --seed 42 --frames 32 --block-size 4
 ```
 
 `--coverage` 在测试失败或覆盖率低于 70% 时返回非零退出码；报告写入 `experiments/local/coverage.json`。仿真原始数据默认写入 `experiments/local/simulation.json`，包括负载、每步指标、完成和容量拒绝记录。容量拒绝属于仿真结果，不是真实 CUDA OOM；仿真 tick 不是 GPU 时间。
+
+### RTX 4060 Laptop 验证入口
+
+在具备兼容依赖的 Linux CUDA 环境中运行：
+
+```bash
+bash scripts/validate_gpu.sh --model ~/huggingface/Qwen3-0.6B
+```
+
+默认固定 4 个 GPU KV 块、16 个主机块、3 条请求，所有参数可在 `--help` 中调整。显存充足的参考配置仅用于输出正确性检查；性能与容量对照使用同样的物理块数。GPU 报告写入 `experiments/local/gpu_validation.json`。未安装 CUDA 依赖或无 GPU 时退出码为 2，并标记 unavailable。
 
 ## 仓库结构
 

@@ -1,6 +1,6 @@
 """按序运行 test 目录下全部功能正确性用例，任一失败即中止。
 
-默认钉在本机 NVIDIA GeForce RTX 4090 D（nvidia-smi PCI 序）。
+默认使用设备 0，尊重已有 CUDA_VISIBLE_DEVICES 设置。
 
 用法（在仓库根目录下）:
     python test/run_all.py
@@ -23,22 +23,10 @@ TESTS = (
 )
 
 
-def pick_4090() -> str:
-    raw = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=index,name", "--format=csv,noheader"],
-        text=True,
-    )
-    for line in raw.strip().splitlines():
-        idx, name = [x.strip() for x in line.split(",", 1)]
-        if "4090" in name:
-            return idx
-    return "0"
-
-
 def main() -> None:
     env = os.environ.copy()
     env["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    env["CUDA_VISIBLE_DEVICES"] = pick_4090()
+    env.setdefault("CUDA_VISIBLE_DEVICES", "0")
 
     failed = 0
     for name in TESTS:

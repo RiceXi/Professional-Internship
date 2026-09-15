@@ -32,3 +32,4 @@ traces/
 *.nsys-rep
 .venv-cpu/
 experiments/local/
+.venv-torch/

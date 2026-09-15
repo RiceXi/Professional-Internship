@@ -1,7 +1,7 @@
 """清空 bench/out 后按序跑 v3 性能用例，结果只写 txt。
 
 默认只跑本仓库的 v3；传入 --with-external 后追加 nano-vllm 和官方 vLLM。
-默认钉在本机 NVIDIA GeForce RTX 4090 D（nvidia-smi PCI 序）。
+默认使用设备 0，尊重已有 CUDA_VISIBLE_DEVICES 设置。
 
 用法（在仓库根目录下）:
     python bench/run_all.py
@@ -23,18 +23,6 @@ PY = Path(sys.executable)
 OUT = BENCH / "out"
 
 
-def pick_4090() -> str:
-    raw = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=index,name", "--format=csv,noheader"],
-        text=True,
-    )
-    for line in raw.strip().splitlines():
-        idx, name = [x.strip() for x in line.split(",", 1)]
-        if "4090" in name:
-            return idx
-    return "0"
-
-
 def run(py: Path, *args: str, env: dict[str, str]) -> None:
     cmd = [str(py), *args]
     print(f"\n{'=' * 64}\n$ {' '.join(cmd)}\n{'=' * 64}\n", flush=True)
@@ -54,10 +42,10 @@ def main() -> None:
 
     env = os.environ.copy()
     env["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    env["CUDA_VISIBLE_DEVICES"] = pick_4090()
+    env.setdefault("CUDA_VISIBLE_DEVICES", "0")
     print(
         f"GPU CUDA_VISIBLE_DEVICES={env['CUDA_VISIBLE_DEVICES']} "
-        f"(PCI_BUS_ID, 4090 D if present)",
+        f"(PCI_BUS_ID)",
         flush=True,
     )
 

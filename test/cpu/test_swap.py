@@ -143,3 +143,24 @@ class SwapTests(unittest.TestCase):
         mem.check_invariants()
         self.assertEqual(mem.read_sequence(a), [1])
         self.assertEqual(mem.read_sequence(b), [1])
+
+    def test_reserve_rollback_after_successful_cow_then_io_failure(self):
+        mem = PagedMemory(4, 2, host_pages=2)
+        a = mem.new_sequence()
+        mem.append(a, 1)
+        b = mem.fork(a)
+        clear = mem.storage.clear
+        calls = 0
+        def fail_second(frame):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise RuntimeError('host allocation failed')
+            clear(frame)
+        mem.storage.clear = fail_second
+        with self.assertRaises(RuntimeError):
+            mem.reserve(b, 6)
+        mem.check_invariants()
+        self.assertEqual(mem.read_sequence(a), [1])
+        self.assertEqual(mem.read_sequence(b), [1])
+        self.assertEqual(mem.metrics()['cow_copies'], 0)

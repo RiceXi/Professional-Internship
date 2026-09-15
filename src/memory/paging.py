@@ -136,10 +136,23 @@ class PagedMemory:
         copy_tail = (length > seq.length and seq.length % self.block_size != 0
                      and self.pages[seq.pages[-1]].refs > 1)
         self._check_growth(count + int(copy_tail))
-        if copy_tail:
-            self._make_private(seq, len(seq.pages) - 1)
-        for _ in range(count):
-            seq.pages.append(self._new_page())
+        previous = list(seq.pages)
+        copies_before = self.cow_copies
+        try:
+            if copy_tail:
+                self._make_private(seq, len(seq.pages) - 1)
+            for _ in range(count):
+                seq.pages.append(self._new_page())
+        except Exception:
+            # A backend allocation/copy can fail after capacity preflight.
+            # Restore logical ownership; completed transfers may change residency.
+            for pid in set(seq.pages) - set(previous):
+                self._release_page(pid)
+            for pid in set(previous) - set(seq.pages):
+                self.pages[pid].refs += 1
+            seq.pages = previous
+            self.cow_copies = copies_before
+            raise
         seq.length = length
         for i, pid in enumerate(seq.pages):
             self.pages[pid].used = min(self.block_size, length - i * self.block_size)
@@ -220,15 +233,18 @@ class PagedMemory:
             raise AllocationError("cannot free pinned mappings")
         del self.sequences[sid]
         for pid in seq.pages:
-            page = self.pages[pid]
-            page.refs -= 1
-            if page.refs == 0:
-                if page.frame is not None:
-                    self.free_frames.append(page.frame)
-                else:
-                    self.storage.drop_host(page.host)
-                    self.free_host.append(page.host)
-                del self.pages[pid]
+            self._release_page(pid)
+
+    def _release_page(self, pid: int) -> None:
+        page = self.pages[pid]
+        page.refs -= 1
+        if page.refs == 0:
+            if page.frame is not None:
+                self.free_frames.append(page.frame)
+            else:
+                self.storage.drop_host(page.host)
+                self.free_host.append(page.host)
+            del self.pages[pid]
 
     def metrics(self) -> dict:
         allocated = len(self.pages) * self.block_size
