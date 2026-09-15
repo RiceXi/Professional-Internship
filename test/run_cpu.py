@@ -1,6 +1,10 @@
 """CPU-only course tests: python test/run_cpu.py [--coverage]."""
 import argparse
+import hashlib
+import json
 from pathlib import Path
+import platform
+import subprocess
 import sys
 import unittest
 
@@ -11,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--coverage', action='store_true')
+    parser.add_argument('--output', type=Path, default=ROOT / 'experiments/local')
     args = parser.parse_args()
     cov = None
     if args.coverage:
@@ -24,9 +29,24 @@ def main():
         cov.stop()
         cov.save()
         covered = cov.report(show_missing=True)
-        out = ROOT / 'experiments/local'
-        out.mkdir(parents=True, exist_ok=True)
-        cov.json_report(outfile=str(out / 'coverage.json'))
+        args.output.mkdir(parents=True, exist_ok=True)
+        cov.json_report(outfile=str(args.output / 'coverage.json'))
+    args.output.mkdir(parents=True, exist_ok=True)
+    summary = {
+        'scope': 'CPU logic and optional CPU tensor backend; CUDA not exercised',
+        'python': sys.version, 'platform': platform.platform(),
+        'tests_run': result.testsRun, 'failures': len(result.failures),
+        'errors': len(result.errors),
+        'skipped': [{'test': str(test), 'reason': reason} for test, reason in result.skipped],
+        'line_coverage_percent': covered if cov else None,
+        'coverage_threshold': 70,
+        'status': 'passed' if result.wasSuccessful() and covered >= 70 else 'failed',
+        'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+        'source_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+                          for directory in ('src/memory', 'test/cpu')
+                          for p in sorted((ROOT / directory).glob('*.py'))},
+    }
+    (args.output / 'test_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
     return 0 if result.wasSuccessful() and covered >= 70 else 1
 
 

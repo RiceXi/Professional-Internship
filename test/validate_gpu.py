@@ -6,6 +6,8 @@ Unavailable dependencies produce a machine-readable report and exit 2.
 from __future__ import annotations
 import argparse
 from dataclasses import asdict
+from datetime import datetime, timezone
+import hashlib
 import importlib.metadata
 import importlib.util
 import json
@@ -71,6 +73,10 @@ def model_case(args, torch, frames, host_pages, shared=False):
         engine.runtime.requests.clear()
         engine.runtime.history.clear()
         engine.runtime._next_id = 0
+        engine.memory.cow_copies = engine.memory.swap_in_pages = engine.memory.swap_out_pages = 0
+        engine.memory.host_cow_reads = 0
+        engine.storage.d2h_bytes = engine.storage.h2d_bytes = engine.storage.d2d_bytes = 0
+        engine.storage.transfer_seconds = 0.0
         torch.cuda.synchronize()
         t0 = time.perf_counter()
         if shared:
@@ -116,8 +122,13 @@ def main():
     args = parser.parse_args()
     if min(args.frames,args.requests,args.prompt_tokens) <= 0 or args.host_pages < 0 or args.output_tokens < 2:
         parser.error('positive sizes, nonnegative host pages, and at least 2 output tokens required')
-    report = {'kind': 'gpu_validation', 'status': 'unavailable', 'platform': platform.platform(),
-              'python': sys.version, 'seed': args.seed, 'cases': {}}
+    report = {'kind': 'gpu_validation', 'scope': 'storage_only' if args.storage_only else 'storage_and_qwen3',
+              'status': 'unavailable', 'platform': platform.platform(),
+              'python': sys.version, 'seed': args.seed, 'cases': {},
+              'created_utc': datetime.now(timezone.utc).isoformat(),
+              'arguments': {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
+              'source_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+                                for p in [*sorted((ROOT / 'src/memory').glob('*.py')), Path(__file__)]}}
     code = 2
     try:
         report['commit'] = subprocess.check_output(['git','rev-parse','HEAD'], cwd=ROOT,text=True).strip()

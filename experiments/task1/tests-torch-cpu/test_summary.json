@@ -1,0 +1,31 @@
+{
+  "scope": "CPU logic and optional CPU tensor backend; CUDA not exercised",
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "tests_run": 35,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "line_coverage_percent": 93.63957597173145,
+  "coverage_threshold": 70,
+  "status": "passed",
+  "commit": "655be7fc0e6625d2018cd72a352fc35c18e7adf9",
+  "source_sha256": {
+    "src/memory/__init__.py": "c31d95ce79445a10abaa81094a575e66ee1957260cb42a619be7c89ea575c1e2",
+    "src/memory/contiguous.py": "340bc64484ab84f7adcd1a521226e8b684d3ebd2eaa9a2ff5e1ecf4559e19b51",
+    "src/memory/gpu_engine.py": "ed3e659cf3e77111d6ec46e66304d126db072bcb70f81af1f08a12fea138d874",
+    "src/memory/paging.py": "dc7b02478c68e73141c5d705d2d77a533b11f12efa99185600c94bb4e99c9822",
+    "src/memory/runtime.py": "9ba126d50db0dfccbd83defce58b7c6f14ac656cad836165849b5c675dacef08",
+    "src/memory/simulation.py": "43a2ac9a9f2a5c29a58dfd8d9c8b0daf52296011a346d57535340c23462761b6",
+    "src/memory/storage.py": "840919a71fc4a950cd166a576140bf37b5e94e6e5dd0685d869d177f24899545",
+    "src/memory/torch_storage.py": "82c14577d91e5f73e268ff25f81c08a0cbdf438faf8dcaa9955e5cc7d8673818",
+    "test/cpu/test_cow.py": "77010d2e6122c9eda178372f15527128b798f2c8f8d7625fb695d2d71902662f",
+    "test/cpu/test_experiments.py": "da8e8057982d0b19148f5135d24df3d520392acd07d2d081b318b2cb63ede97d",
+    "test/cpu/test_gpu_matrix.py": "1129cac43c507be5891adb193a13cd249a0c6f32a055c177d7646782b6ba4c76",
+    "test/cpu/test_memory.py": "5d72e8fd2f3200e92e8b41ff0473040d2e2fed2a6ff3fe9f5a939a74bb12a745",
+    "test/cpu/test_runtime.py": "79966b5706b529caf9f98e6ac4068b56a26ecafb90fb4d33bcaa49f2f3ca3b68",
+    "test/cpu/test_simulation.py": "a2950df6fac9955258e78ae8e577ea8f175e0ea7b964e6bf698471e704b725e4",
+    "test/cpu/test_swap.py": "8e8cbfdcd81eabb18b358b32cdf85b0aade3bf5cfd6c473c7a591395002c0535",
+    "test/cpu/test_torch_storage.py": "8f3fe4dccabf0f6e5674b6d9591055f684c40d710d751546425ef6b604d42088"
+  }
+}

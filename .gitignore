@@ -33,3 +33,6 @@ traces/
 .venv-cpu/
 experiments/local/
 .venv-torch/
+.artifacts-build/
+.codex-finalizer/
+.chart-data-*/
