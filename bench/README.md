@@ -4,14 +4,11 @@
 
 ```bash
 python3 bench/bench_memory.py
-.venv-cpu/bin/python -m pip install -r requirements-report.txt
-.venv-cpu/bin/python scripts/plot_memory.py
-python3 scripts/report_memory.py
 ```
 
 共 129 组确定性 CPU 仿真，对照连续预分配、按需分页、分页与主机换页；另有共享分支 COW 和外部碎片用例。记录页大小、物理容量、负载、每步资源状态、完成与容量拒绝，以及源码哈希。
 
-输出为 `experiments/task1/raw.json`、`summary.csv` 和 PNG/SVG 图表。策略共用负载和轮询规则，换页额外使用有界主机页池；CPU tick 不是设备时间，容量拒绝不是 CUDA OOM。
+实验脚本输出 `experiments/task1/raw.json` 和 `summary.csv`，本次评测的 PNG/SVG 图表也保存在该目录。策略共用负载和轮询规则，换页额外使用有界主机页池；CPU tick 不是设备时间，容量拒绝不是 CUDA OOM。
 
 GPU 对照运行 `python scripts/gpu_matrix.py`。详见[量化报告](../docs/02-量化评测报告.md)和[复现说明](../docs/04-复现与演示.md)。
 

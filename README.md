@@ -56,7 +56,7 @@ bash scripts/validate_gpu.sh --model ~/huggingface/Qwen3-0.6B
 
 ## 实验与文档
 
-仓库包含 129 组 CPU 仿真的原始数据、图表和生成脚本，覆盖页大小、并发数、上下文长度、共享分支及外部碎片。CPU 实验衡量空间分配与容量，GPU 吞吐和延迟需要另行实测。
+仓库包含 129 组 CPU 仿真的原始数据、图表和实验脚本，覆盖页大小、并发数、上下文长度、共享分支及外部碎片。CPU 实验衡量空间分配与容量，GPU 吞吐和延迟需要另行实测。
 
 - [系统设计](docs/00-系统设计.md)：页表、COW 和换页流程。
 - [显存与指标](docs/01-显存与指标.md)：KV 容量计算和统计方式。
@@ -73,6 +73,6 @@ src/compute/     # Qwen3、Attention、采样和图执行
 test/            # CPU 与 GPU 测试
 bench/           # 内存实验和推理性能基准
 experiments/     # 原始数据与图表；local/ 存放本地运行结果
-scripts/         # 环境配置、演示和报告生成脚本
+scripts/         # 环境配置、演示和 GPU 验证脚本
 docs/            # 设计、评测与使用说明
 ```
