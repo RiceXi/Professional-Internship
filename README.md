@@ -11,9 +11,9 @@
 | 序列 fork 与写时复制 | 已实现，完整页/未满页及随机分支隔离测试通过 |
 | CPU 换出、换入与 LRU | 已实现有界主机存储、LRU、工作集固定和满容量交换；CPU 测试通过 |
 | 真实 KV 数据与引擎验证 | 已接入课程内存运行器与张量后端；CUDA/Qwen3 实测待在用户 GPU 上执行 |
-| 评测报告、设计图、答辩材料 | 随阶段完善 |
+| 评测报告、设计图、答辩材料 | 已提供 CPU 定量报告、设计图、可编辑 PPT 和演示顺序；实际录屏待完成 |
 
-持续批处理与 GPU 算子作为运行支撑。此次验收聚焦内存管理，详见[课程实施计划](docs/11-任务一验收与补齐方案.md)。
+持续批处理与 GPU 算子作为运行支撑。此次验收聚焦内存管理，详见[验收清单](docs/03-验收清单.md)。
 
 ## 本地启动与测试
 
@@ -23,6 +23,7 @@ Python 3.10+。CPU 仿真运行只需标准库，覆盖率检查使用独立虚�
 bash scripts/setup_cpu.sh
 .venv-cpu/bin/python test/run_cpu.py --coverage
 python3 simulate.py --seed 42 --frames 32 --block-size 4
+python3 scripts/demo_memory.py
 ```
 
 `--coverage` 在测试失败或覆盖率低于 70% 时返回非零退出码；报告写入 `experiments/local/coverage.json`。仿真原始数据默认写入 `experiments/local/simulation.json`，包括负载、每步指标、完成和容量拒绝记录。容量拒绝属于仿真结果，不是真实 CUDA OOM；仿真 tick 不是 GPU 时间。
@@ -48,7 +49,7 @@ simulate.py      # 无 GPU 课程实验入口
 run.py           # 现有 GPU 推理入口
 test/cpu/        # 课程逻辑测试
 test/            # GPU 功能测试及测试运行器
-bench/           # GPU 性能基准
+bench/           # CPU 内存实验与 GPU 性能基准
 experiments/     # 实验数据；local/ 为本地临时结果
 scripts/         # 环境与复现脚本
 docs/            # 课程设计、指标与验收文档
@@ -68,7 +69,7 @@ python test/run_all.py
 
 可用 `--cg` 启用 Decode CUDA Graph，`--compile` 启用 Prefill 编译，`--batch` 运行批量演示。配置优先级为命令行、`config.yaml`、代码默认值。内存管理实验应固定执行配置，分别报告模型、KV、运行时显存和数据搬运代价。
 
-现有 GPU 测试要求 CUDA 和本地模型，不能由 CPU 仿真替代。GPU 性能脚本见 [bench/README.md](bench/README.md)，课程设计文档见 [docs/README.md](docs/README.md)。
+现有 GPU 测试要求 CUDA 和本地模型，不能由 CPU 仿真替代。完整复现与压力矩阵见 [复现与演示](docs/04-复现与演示.md)。GPU 性能脚本见 [bench/README.md](bench/README.md)，课程设计文档见 [docs/README.md](docs/README.md)。
 
 ## 交付与回滚
 
