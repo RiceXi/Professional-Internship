@@ -1,4 +1,4 @@
-# 测试与证据
+# 测试
 
 ## CPU 测试
 
@@ -7,13 +7,13 @@ bash scripts/setup_cpu.sh
 .venv-cpu/bin/python test/run_cpu.py --coverage
 ```
 
-覆盖页表/动态分配、连续空闲区合并、fork/COW、独立释放、LRU、满容量交换、固定工作集、后端失败回滚、随机生命周期、运行器和实验汇总。运行器失败不会被计为完成请求。
+测试包括页表映射、动态分配、连续空闲区合并、fork/COW、LRU 换页、工作集固定和资源回收。随机序列用例检查长时间运行后的状态一致性，失败用例检查复制异常和容量不足时的回滚。
 
-覆盖率范围为整个 `src/memory`，阈值 ≥70%，包括尚未执行的 GPU 适配代码。未安装 torch 时三项实际张量测试明确跳过；含 PyTorch 的 CPU 环境会核对真实张量的 COW、页往返和交换。它们都不能证明 CUDA 内核正确。
+覆盖率统计整个 `src/memory`，通过阈值为 70%。安装 PyTorch 后，同一测试命令还会检查 CPU 张量的 COW、页往返和交换；未安装时跳过这三项。CUDA 适配代码也计入覆盖范围，但需要在 GPU 环境另行测试。
 
 `experiments/local/test_summary.json` 保存通过/失败/跳过、环境与源码哈希；`coverage.json` 保存逐文件行覆盖率。`--output <目录>` 可以指定归档位置。
 
-## 课程 GPU 验证
+## GPU 验证
 
 ```bash
 bash scripts/validate_gpu.sh --storage-only
@@ -21,14 +21,14 @@ bash scripts/validate_gpu.sh --model ~/huggingface/Qwen3-0.6B
 python scripts/gpu_matrix.py --model ~/huggingface/Qwen3-0.6B
 ```
 
-真实 CUDA 页内容测试先执行，再比较显存充足和换页/COW 路径的贪心输出。缺环境退出 2，失败退出 1，通过退出 0。`storage_only` 报告的通过只针对页内容测试。
+脚本先检查 CUDA 页内容，再比较显存充足和换页/COW 路径的贪心输出。通过时退出 0，执行失败时退出 1，环境不完整时退出 2。`--storage-only` 只运行页内容测试。
 
-矩阵在独立进程改变并发与上下文长度，保留标准输出、异常、逐案例报告和矩阵摘要。完整 Attention 工作集超限单列为容量边界；没有真实 CUDA OOM 时不得报告其降低比例。详见[复现与演示](../docs/04-复现与演示.md)。
+压力测试在独立进程中改变并发数和上下文长度，保存每组输出、异常及汇总结果。完整 Attention 工作集超限和 CUDA OOM 分别记录，详见[复现与演示](../docs/04-复现与演示.md)。
 
-## 推理支撑模块测试
+## 引擎与算子测试
 
 ```bash
 python test/run_all.py
 ```
 
-需要 CUDA 与本地 Qwen3-0.6B。覆盖原有引擎、采样、前缀缓存与混合调度。默认使用设备 0，遵守 `CUDA_VISIBLE_DEVICES`；这些测试尚未在本机运行。
+测试引擎、采样、前缀缓存与混合调度，需要 CUDA 和本地 Qwen3-0.6B。默认使用设备 0，支持通过 `CUDA_VISIBLE_DEVICES` 选择设备。目前尚无这组测试的 GPU 运行结果。

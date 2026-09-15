@@ -1,76 +1,78 @@
-# Professional Internship · KV Cache 分页内存管理
+# KV Cache 分页内存管理
 
-专业实习课程任务一：将操作系统的分页、逻辑地址映射、共享与写时复制、页面置换用于大模型 KV Cache。验收依据为[任务书](面向大模型推理优化的操作系统级任务设计_合并版.docx)第二部分和通用考核要求。
+本项目关注大模型推理中的 KV Cache 内存管理，实现了按需分页、前缀共享、写时复制（COW）和 LRU 换页，并接入 Qwen3 推理。
 
-## 课程目标与进度
+生成长度事先很难确定：按最大长度预留 KV 空间容易浪费，多个分支分别保存相同前缀也会重复占用显存。本项目将上下文拆成固定大小的页，在生成过程中逐步分配；分支先共享已有页，写入时再复制；显存不足时，将暂时不用的页换到主机内存。
 
-| 内容 | 状态 |
-|---|---|
-| 无 GPU 分页仿真、页表、动态扩页、分配与回收 | 已实现，CPU 测试覆盖 |
-| 连续预分配基线、固定种子负载、逐步资源统计 | 已实现 |
-| 序列 fork 与写时复制 | 已实现，完整页/未满页及随机分支隔离测试通过 |
-| CPU 换出、换入与 LRU | 已实现有界主机存储、LRU、工作集固定和满容量交换；CPU 测试通过 |
-| 真实 KV 数据与引擎验证 | 已接入课程内存运行器与张量后端；CUDA/Qwen3 实测待在用户 GPU 上执行 |
-| 评测报告、设计图、答辩材料 | 已提供 CPU 定量报告、设计图、可编辑 PPT 和演示顺序；实际录屏待完成 |
+内存管理逻辑可以脱离 GPU 运行。CPU 后端用于检查页表、复制和换页行为，张量后端连接真实 KV 池。当前已完成 CPU 测试和仿真实验，CUDA/Qwen3 路径已接入，尚待 GPU 实测。
 
-持续批处理与 GPU 算子作为运行支撑。此次验收聚焦内存管理，详见[验收清单](docs/03-验收清单.md)。
+## 快速开始
 
-## 本地启动与测试
-
-Python 3.10+。CPU 仿真运行只需标准库，覆盖率检查使用独立虚拟环境：
+CPU 仿真只需要 Python 3.10+：
 
 ```bash
-bash scripts/setup_cpu.sh
-.venv-cpu/bin/python test/run_cpu.py --coverage
 python3 simulate.py --seed 42 --frames 32 --block-size 4
 python3 scripts/demo_memory.py
 ```
 
-`--coverage` 在测试失败或覆盖率低于 70% 时返回非零退出码；报告写入 `experiments/local/coverage.json`。仿真原始数据默认写入 `experiments/local/simulation.json`，包括负载、每步指标、完成和容量拒绝记录。容量拒绝属于仿真结果，不是真实 CUDA OOM；仿真 tick 不是 GPU 时间。
+第一个命令在相同负载下比较连续预分配、按需分页和分页换页，结果写入 `experiments/local/simulation.json`。第二个命令演示 fork、COW、LRU 换页和资源回收，可以直接观察父子序列的内容变化。
 
-### RTX 4060 Laptop 验证入口
-
-在具备兼容依赖的 Linux CUDA 环境中运行：
+安装测试依赖并运行测试：
 
 ```bash
-bash scripts/validate_gpu.sh --model ~/huggingface/Qwen3-0.6B
+bash scripts/setup_cpu.sh
 ```
 
-默认固定 4 个 GPU KV 块、16 个主机块、3 条请求，所有参数可在 `--help` 中调整。显存充足的参考配置仅用于输出正确性检查；性能与容量对照使用同样的物理块数。GPU 报告写入 `experiments/local/gpu_validation.json`。未安装 CUDA 依赖或无 GPU 时退出码为 2，并标记 unavailable。
+脚本会创建 `.venv-cpu` 并检查覆盖率。之后可单独运行：
 
-## 仓库结构
-
-```text
-src/memory/      # CPU 安全的内存管理逻辑、存储后端与连续基线
-src/control/     # 推理引擎与调度器
-src/data/        # 现有 GPU KV 池、批数据和前缀索引
-src/compute/     # Qwen3、Attention、采样和图执行
-simulate.py      # 无 GPU 课程实验入口
-run.py           # 现有 GPU 推理入口
-test/cpu/        # 课程逻辑测试
-test/            # GPU 功能测试及测试运行器
-bench/           # CPU 内存实验与 GPU 性能基准
-experiments/     # 实验数据；local/ 为本地临时结果
-scripts/         # 环境与复现脚本
-docs/            # 课程设计、指标与验收文档
+```bash
+.venv-cpu/bin/python test/run_cpu.py --coverage
 ```
 
-## GPU 推理环境
+测试结果保存在 `experiments/local/`。更多说明见 [test/README.md](test/README.md)。
 
-现有引擎面向 Linux + NVIDIA CUDA，建议 Python 3.12。按 [PyTorch](https://pytorch.org/get-started/locally/)、[FlashAttention](https://github.com/Dao-AILab/flash-attention#installation-and-features) 和 [FlashInfer](https://docs.flashinfer.ai/installation.html) 官方说明安装相互兼容且支持目标 GPU 的版本，再安装 `requirements.txt`。CPU 仿真环境无需这些依赖。
+## GPU 推理与验证
+
+GPU 引擎面向 Linux + NVIDIA CUDA，建议使用 Python 3.12。先按 [PyTorch](https://pytorch.org/get-started/locally/)、[FlashAttention](https://github.com/Dao-AILab/flash-attention#installation-and-features) 和 [FlashInfer](https://docs.flashinfer.ai/installation.html) 的安装说明配置依赖，再准备项目环境和模型：
 
 ```bash
 python -m pip install -r requirements.txt
 python -m pip check
 hf download Qwen/Qwen3-0.6B --local-dir ~/huggingface/Qwen3-0.6B
 python run.py --model Qwen3-0.6B --temperature 0 --eager --no-compile
-python test/run_all.py
 ```
 
-可用 `--cg` 启用 Decode CUDA Graph，`--compile` 启用 Prefill 编译，`--batch` 运行批量演示。配置优先级为命令行、`config.yaml`、代码默认值。内存管理实验应固定执行配置，分别报告模型、KV、运行时显存和数据搬运代价。
+`run.py` 支持 `--batch` 批量生成、`--cg` Decode CUDA Graph 和 `--compile` Prefill 编译。配置优先级为命令行、`config.yaml`、代码默认值。
 
-现有 GPU 测试要求 CUDA 和本地模型，不能由 CPU 仿真替代。完整复现与压力矩阵见 [复现与演示](docs/04-复现与演示.md)。GPU 性能脚本见 [bench/README.md](bench/README.md)，课程设计文档见 [docs/README.md](docs/README.md)。
+分页和换页使用单独的验证入口：
 
-## 交付与回滚
+```bash
+bash scripts/validate_gpu.sh --model ~/huggingface/Qwen3-0.6B
+```
 
-每阶段通过相关测试后单独提交和推送。源码、可复现命令与原始实验数据共同构成验收证据。例会、互审和个人分工按实际过程记录；历史性能数字不作为本次课程结论。
+默认使用 4 个 GPU KV 块、16 个主机块和 3 条请求，对比换页前后的生成结果，并记录显存峰值和搬运开销。参数可通过 `--help` 查看，环境和压力测试说明见[复现与演示](docs/04-复现与演示.md)。
+
+换页允许多个请求轮流使用显存，但单次 Attention 仍要求完整历史 KV 驻留。因此，它能扩展可保存的上下文总量，单条请求的长度仍受物理 KV 池限制。
+
+## 实验与文档
+
+仓库包含 129 组 CPU 仿真的原始数据、图表和生成脚本，覆盖页大小、并发数、上下文长度、共享分支及外部碎片。CPU 实验衡量空间分配与容量，GPU 吞吐和延迟需要另行实测。
+
+- [系统设计](docs/00-系统设计.md)：页表、COW 和换页流程。
+- [显存与指标](docs/01-显存与指标.md)：KV 容量计算和统计方式。
+- [评测报告](docs/02-量化评测报告.md)：实验配置、结果与分析。
+- [复现与演示](docs/04-复现与演示.md)：完整运行步骤。
+
+## 目录
+
+```text
+src/memory/      # 分页管理、存储后端、连续分配基线
+src/control/     # 推理引擎与调度器
+src/data/        # GPU KV 池、批数据和前缀索引
+src/compute/     # Qwen3、Attention、采样和图执行
+test/            # CPU 与 GPU 测试
+bench/           # 内存实验和推理性能基准
+experiments/     # 原始数据与图表；local/ 存放本地运行结果
+scripts/         # 环境配置、演示和报告生成脚本
+docs/            # 设计、评测与使用说明
+```
