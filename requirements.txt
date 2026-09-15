@@ -1,0 +1,8 @@
+huggingface-hub
+numpy
+PyYAML
+safetensors
+tqdm
+transformers
+triton
+xxhash
