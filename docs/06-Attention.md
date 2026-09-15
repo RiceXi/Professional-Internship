@@ -1,5 +1,5 @@
 # Attention：从标准实现到 FlashAttention 与 PagedAttention
-为了进一步了解v3究竟是如何对attention进行优化的，我们从最原始的attention开始，分析原本的attention性能瓶颈究竟是什么，然后再看一下FlashAttention是如何把它变快的。
+为了进一步了解本项目究竟是如何对attention进行优化的，我们从最原始的attention开始，分析原本的attention性能瓶颈究竟是什么，然后再看一下FlashAttention是如何把它变快的。
 
 ## 1. 标准 attention 的显存瓶颈
 
@@ -28,7 +28,7 @@ RTX 4090 的关键指标：
 - FP32 算力约 82.6 TFLOPS，
 - 显存带宽约 1008 GB/s。
 
-两个数字的比值叫做算术强度，单位是FLOP/byte。一个计算密集的算子要做到不浪费算力，每做 1 次 FLOP 至少要搬 `82.6e12 / 1008e9 ≈ 82` 字节以内的数据。
+两个峰值的比值给出 roofline 模型的转折点，单位为 FLOP/byte。以这组参数计算，算子的算术强度需达到约 82 FLOP/byte，才可能进入计算受限区；这不是“每 FLOP 需要搬 82 字节”。
 
 ```
 I_ridge = 算力 / 带宽 = 82.6e12 / 1008e9 ≈ 82 FLOP/byte
@@ -47,7 +47,7 @@ I_ridge = 算力 / 带宽 = 82.6e12 / 1008e9 ≈ 82 FLOP/byte
 I = 34.4e9 / 1088e6 ≈ 32 FLOP/byte
 ```
 
-很明显，标准 attention 落在 roofline 的带宽受限区。换句话说，它的算力利用率只有 `32/82 ≈ 39%`，剩下 61% 的 FLOPs 都在等显存。
+很明显，标准 attention 落在 roofline 的带宽受限区。换句话说，在上述简化模型下，其性能上限约为峰值算力的 `32/82 ≈ 39%`。这是理论上限估算，不是实测 GPU 利用率。
 
 同样的计算，但如果中间矩阵留在片上，K/V 块的重读又被 L2 缓存吸收，显存流量只剩 Q、K、V、O 各一次，约 16 MB。算术强度变成 `34.4e9 / 16e6 ≈ 2150 FLOP/byte`，远超 ridge 点，进入计算受限区，理论耗时 `34.4e9 / 82.6e12 ≈ 416 us`，和带宽受限差了约 2.6 倍。
 
@@ -109,7 +109,6 @@ O 的第 0 行 = 0.05·v₀ + 0.95·v₁，系数 0.05/0.95 来自 P 的第 0 �
 于是自然而然我们就把 Q 按行切成块。对每个 Q 块，遍历所有 K/V 块，在片上算完这一小块 attention 就累加进输出，`S`、`P` 就会只存在于 SRAM。
 
 ### 2.2. online softmax
-> 参考我博客的softmax详解 [博客地址](https://dlog.com.cn)
 
 
 另一个难点在 softmax。softmax 的分母需要整行的 max 和 sum，但我们是分块读的，读到一半时还不知道全行的 max。FlashAttention 用的是 **online softmax**，即维护一个 running max `m` 和 running sum `l`，每读一个新块，用新旧 max 的差去修正之前的累加结果。
@@ -273,9 +272,9 @@ Varlen（Variable Length）系列接口就是为了解决这个问题而生的�
 
 flash-attn 的 `flash_attn_varlen_func` 和 `flash_attn_with_kvcache` 都接受 `block_table` 参数，这就是它支持 PagedAttention 的方式。
 
-## 5. v3 实际调用的两个函数
+## 5. 本项目实际调用的两个函数
 
-v3 把 attention 拆成 prefill 和 decode 两个阶段，各用一个 FlashAttention 入口。
+本项目把 attention 拆成 prefill 和 decode 两个阶段，各用一个 FlashAttention 入口。
 
 prefill（`flash_attn_varlen_func`）：
 
@@ -307,7 +306,7 @@ o = flash_attn_with_kvcache(
 
 decode 每个序列只出一个 token，整批所有序列的 paged attention 在这个内核里一次算完，kernel 数不随 batch 增长。
 
-v3 的 `Attention.forward` 本质上就是先写 KV 再选入口，精简后是这样：
+本项目的 `Attention.forward` 本质上就是先写 KV 再选入口，精简后是这样：
 
 ```python
 def attention(q, k, v, slot_mapping, is_prefill, ...):
@@ -330,16 +329,16 @@ Qwen3-0.6B 是 16 个 query 头配 8 个 KV 头，即 GQA（Grouped Query Attent
 
 标准做法是把 K/V 从 [8, S, D] 广播成 [16, S, D] 再算，这会额外物化一份 2 倍大的 K/V。FlashAttention 内核原生支持 GQA，直接传 `num_qo_heads` 和 `num_kv_heads`，头映射在内核里完成，不物化中间张量。
 
-v2 的 `_expand_gqa` 就是那个被省掉的物化操作：
+朴素参考实现的 `_expand_gqa` 就是那个被省掉的物化操作：
 
 ```python
-# v2：显式把 K/V 展开成 query 头数
+# 朴素参考实现：显式把 K/V 展开成 query 头数
 k = k.unsqueeze(2).expand(b, hkv, num_kv_groups, s, d).reshape(b, num_heads, s, d)
 ```
 
-## 7. v3 attention 的一条完整数据流
+## 7. 本项目 attention 的一条完整数据流
 
-把前面拼起来，decode 阶段一层 attention 在 v3 里是这样走的：
+把前面拼起来，decode 阶段一层 attention 在本项目里是这样走的：
 
 ```python
 # 1. 投影并拆分出 Q / K / V
@@ -418,7 +417,7 @@ prefill 和 decode 在源码里其实是同一个 `attention` 函数、同一个
 
 核心算法（分块 + online softmax）用几十行代码就能讲清楚，但真正要在 4090 上跑出接近带宽极限的性能，还牵扯到：共享内存的 bank conflict 规避、warp 级并行调度、不同 block size 的 autotune、GQA / 变长 / 分页的组合处理。这些工程细节才是 FlashAttention 库真正难的地方。
 
-所以 v3 的选择是直接调 flash-attn 的现成内核，把省下的精力放在 paged KV 布局、前缀缓存、CUDA Graph 这些系统层优化上。
+所以本项目的选择是直接调 flash-attn 的现成内核，把省下的精力放在 paged KV 布局、前缀缓存、CUDA Graph 这些系统层优化上。
 
 后边会做一个面试专用版放在博客上。
 

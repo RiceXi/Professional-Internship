@@ -28,7 +28,7 @@
 ## 3. 核心组件与接口剖析
 ### 3.1. 初始化
 
-CUDA Graph 的核心约束在于内存地址与张量形状的静态性。v3 的 `CUDAGraphRunner` **直接复用** `Batch` **里预分配的常驻 GPU buffer 作为图的静态输入**：
+CUDA Graph 的核心约束在于内存地址与张量形状的静态性。本项目的 `CUDAGraphRunner` **直接复用** `Batch` **里预分配的常驻 GPU buffer 作为图的静态输入**：
 ```python
 # data/batch.py —— 常驻 GPU buffer，decode / prefill / CUDA Graph 共用
 self.input_ids    = torch.zeros(max_tokens, dtype=torch.int64, device=device)
@@ -99,7 +99,7 @@ self.graphs[bs] = graph
 由于输入指向初始化时预分配的静态 buffer，录制下的图永远绑定这些固定内存地址。
 
 ### 3. 重放
-虽然图是静态的，但每个序列的真实长度与物理页是动态变化的。v3 的做法是把动态数据的注入放在 `Batch.build_decode`（`model_runner._run_decode` 里在 replay 之前调用）：
+虽然图是静态的，但每个序列的真实长度与物理页是动态变化的。本项目的做法是把动态数据的注入放在 `Batch.build_decode`（`model_runner._run_decode` 里在 replay 之前调用）：
 
 ```python
 # data/batch.py build_decode —— 每步把真实数据 copy_ 进常驻 buffer
