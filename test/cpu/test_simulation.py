@@ -5,7 +5,7 @@ from src.memory.simulation import Request, simulate, workload
 class SimulationTests(unittest.TestCase):
     def test_reproducible_and_reclaimed(self):
         jobs = workload(42)
-        for mode in ('paged', 'contiguous'):
+        for mode in ('paged', 'contiguous', 'swap'):
             a = simulate(jobs, mode, frames=8)
             b = simulate(jobs, mode, frames=8)
             self.assertEqual(a, b)
@@ -31,3 +31,13 @@ class SimulationTests(unittest.TestCase):
             simulate([], 'paged', frames=0)
         with self.assertRaises(ValueError):
             workload(count=0)
+
+    def test_swap_improves_admission_but_not_working_set_limit(self):
+        jobs = [Request(i, 0, 6, 16) for i in range(4)]
+        paged = simulate(jobs, 'paged', frames=2, block_size=4)
+        swapped = simulate(jobs, 'swap', frames=2, block_size=4, host_pages=6)
+        self.assertEqual(swapped['completed'], 4)
+        self.assertLess(paged['completed'], 4)
+        self.assertGreater(swapped['final']['swap_in_pages'], 0)
+        oversized = simulate([Request(1, 0, 9, 9)], 'swap', frames=2, block_size=4)
+        self.assertEqual(oversized['capacity_rejected'], 1)

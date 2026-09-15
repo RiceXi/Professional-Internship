@@ -22,8 +22,8 @@ def workload(seed: int = 42, count: int = 32) -> list[Request]:
     return [Request(i, i // 4, rng.randint(3, 20), 32) for i in range(count)]
 
 
-def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size: int = 4) -> dict:
-    if mode not in ('contiguous', 'paged'):
+def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size: int = 4, host_pages: int = 32) -> dict:
+    if mode not in ('contiguous', 'paged', 'swap'):
         raise ValueError('unknown memory mode')
     if frames <= 0 or block_size <= 0:
         raise ValueError('capacity must be positive')
@@ -32,7 +32,7 @@ def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size
     for r in requests:
         if r.arrival < 0 or not 0 < r.tokens <= r.maximum:
             raise ValueError('invalid request')
-    memory = ContiguousMemory(frames * block_size) if mode == 'contiguous' else PagedMemory(frames, block_size)
+    memory = ContiguousMemory(frames * block_size) if mode == 'contiguous' else PagedMemory(frames, block_size, host_pages=host_pages if mode == 'swap' else 0)
     pending = sorted(requests, key=lambda r: (r.arrival, r.rid))
     active = {}
     records = []
@@ -52,6 +52,9 @@ def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size
         for rid, (r, sid, used) in sorted(active.items()):
             try:
                 memory.reserve(sid, used + 1)
+                if mode != 'contiguous':
+                    with memory.pin_sequences([sid]):
+                        pass  # A full attention working set must fit physical memory.
                 active[rid][2] += 1
                 if used + 1 == r.tokens:
                     records.append({'rid': rid, 'status': 'completed', 'at': t})
@@ -68,6 +71,7 @@ def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size
         'kind': 'cpu_simulation', 'mode': mode,
         'workload': [asdict(r) for r in requests],
         'frames': frames, 'block_size': block_size,
+        'host_pages': host_pages if mode == 'swap' else 0,
         'completed': sum(r['status'] == 'completed' for r in records),
         'capacity_rejected': sum(r['status'] == 'capacity_rejected' for r in records),
         'records': sorted(records, key=lambda r: r['rid']), 'trace': trace,
