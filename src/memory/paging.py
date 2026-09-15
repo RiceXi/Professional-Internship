@@ -39,6 +39,7 @@ class PagedMemory:
         self.sequences: dict[int, AddressSpace] = {}
         self._next_page = 0
         self._next_sequence = 0
+        self.cow_copies = 0
 
     def new_sequence(self) -> int:
         sid = self._next_sequence
@@ -46,21 +47,50 @@ class PagedMemory:
         self.sequences[sid] = AddressSpace()
         return sid
 
+    def fork(self, sid: int) -> int:
+        parent = self.sequences[sid]
+        child = self.new_sequence()
+        self.sequences[child] = AddressSpace(list(parent.pages), parent.length)
+        for pid in parent.pages:
+            self.pages[pid].refs += 1
+        return child
+
+    def _new_page(self, source: Page | None = None) -> int:
+        if not self.free_frames:
+            raise AllocationError("physical page pool exhausted")
+        frame = self.free_frames[0]
+        if source is None:
+            self.storage.clear(frame)
+        else:
+            self.storage.copy(source.frame, frame)
+        self.free_frames.popleft()
+        pid = self._next_page
+        self._next_page += 1
+        self.pages[pid] = Page(pid, frame, used=source.used if source else 0)
+        return pid
+
+    def _make_private(self, seq: AddressSpace, page_index: int) -> None:
+        old = self.pages[seq.pages[page_index]]
+        if old.refs > 1:
+            pid = self._new_page(old)
+            old.refs -= 1
+            seq.pages[page_index] = pid
+            self.cow_copies += 1
+
     def reserve(self, sid: int, length: int) -> None:
         """Grow address space. Capacity failures leave its mappings unchanged."""
         seq = self.sequences[sid]
         if length < seq.length:
             raise ValueError("reserve cannot shrink a sequence")
         count = (length + self.block_size - 1) // self.block_size - len(seq.pages)
-        if count > len(self.free_frames):
+        copy_tail = (length > seq.length and seq.length % self.block_size != 0
+                     and self.pages[seq.pages[-1]].refs > 1)
+        if count + int(copy_tail) > len(self.free_frames):
             raise AllocationError("physical page pool exhausted")
+        if copy_tail:
+            self._make_private(seq, len(seq.pages) - 1)
         for _ in range(count):
-            frame = self.free_frames.popleft()
-            self.storage.clear(frame)
-            pid = self._next_page
-            self._next_page += 1
-            self.pages[pid] = Page(pid, frame)
-            seq.pages.append(pid)
+            seq.pages.append(self._new_page())
         seq.length = length
         for i, pid in enumerate(seq.pages):
             self.pages[pid].used = min(self.block_size, length - i * self.block_size)
@@ -73,6 +103,10 @@ class PagedMemory:
         return self.pages[pid].frame, index % self.block_size
 
     def write(self, sid: int, index: int, value) -> None:
+        seq = self.sequences[sid]
+        if not 0 <= index < seq.length:
+            raise IndexError("logical token address out of bounds")
+        self._make_private(seq, index // self.block_size)
         frame, offset = self.translate(sid, index)
         self.storage.write(frame, offset, value)
 
@@ -112,6 +146,7 @@ class PagedMemory:
             "pool_occupancy": len(self.pages) / self.num_frames,
             "allocated_utilization": useful / allocated if allocated else 0.0,
             "internal_fragmentation": (allocated - useful) / allocated if allocated else 0.0,
+            "cow_copies": self.cow_copies,
         }
 
     def check_invariants(self) -> None:

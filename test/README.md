@@ -7,7 +7,7 @@ bash scripts/setup_cpu.sh
 .venv-cpu/bin/python test/run_cpu.py --coverage
 ```
 
-测试覆盖地址映射、跨页扩展、资源回收、分配失败原子性、连续内存碎片以及确定性负载。覆盖率范围为 `src/memory`，要求 ≥70%。
+测试覆盖地址映射、跨页扩展、资源回收、分配失败原子性、连续内存碎片fork/COW 分支隔离、不同释放顺序以及确定性负载。覆盖率范围为 `src/memory`，要求 ≥70%。
 
 ## GPU 推理测试
 
