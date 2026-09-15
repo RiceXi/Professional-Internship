@@ -1,6 +1,5 @@
 """算子级微基准：v2 vs v3（RMSNorm / RoPE / SiLU+Mul / MLP）。
 
-对照 docs/02-实测证据.md 第一部分，隔离测量单个算子的 v2 / v3 实现差异。
 不含权重加载与引擎调度，只测算子本身，CUDA event 计时，warmup 后取均值。
 
 被测算子（忠实复刻源码）：

@@ -1,6 +1,5 @@
 """RMSNorm 融合对比：v3 现状（x+residual 后 F.rms_norm） vs FlashInfer fused_add_rmsnorm。
 
-对照 docs/05-算子融合.md：v3 的残差加法与 RMSNorm 是两个 kernel（residual 写回 HBM 再读回），
 FlashInfer fused_add_rmsnorm 是单 kernel 把 add 融进 norm。这里在多个规模下测二者差距，
 并对比两种 custom-op 包装方案（clone 版 vs mutating 版）的开销。
 

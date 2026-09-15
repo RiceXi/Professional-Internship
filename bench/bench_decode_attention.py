@@ -1,6 +1,5 @@
 """Decode Attention 微基准：v2 gather+SDPA vs v3 FlashAttention paged（含 torch.profiler）。
 
-对照 docs/01-v2性能瓶颈.md §3.5，隔离测量单层 decode attention 路径：
 不含 qkv 投影 / MLP / RMSNorm / 采样，只有「取历史 KV → 算 attention」这一段。
 
 被测路径（忠实复刻源码，非近似）：

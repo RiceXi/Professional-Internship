@@ -1,0 +1,3 @@
+# Runtime simulation uses only the Python standard library.
+# Coverage is used by the course test gate.
+coverage>=7,<8

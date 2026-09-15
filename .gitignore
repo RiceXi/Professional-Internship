@@ -30,3 +30,5 @@ bench/results/
 traces/
 *.pt.trace.json
 *.nsys-rep
+.venv-cpu/
+experiments/local/

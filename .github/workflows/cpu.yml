@@ -1,0 +1,16 @@
+name: CPU memory tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-cpu.lock
+      - run: python test/run_cpu.py --coverage
+      - run: python simulate.py --seed 42
