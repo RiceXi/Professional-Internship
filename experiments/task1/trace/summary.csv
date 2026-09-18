@@ -1,0 +1,4 @@
+scenario,seed,concurrency,tokens,source,trace_requests,mode,frames,block_size,submitted,completed,capacity_rejected,rejection_rate,weighted_internal_fragmentation,peak_allocated_slots,swap_in_pages,swap_out_pages
+trace,42,0,0,azure-llm-trace,300,contiguous,128,16,300,3,297,0.99,0.7209390387695775,2048,0,0
+trace,42,0,0,azure-llm-trace,300,paged,128,16,300,11,289,0.9633333333333334,0.04654000735608477,2048,0,0
+trace,42,0,0,azure-llm-trace,300,swap,128,16,300,22,278,0.9266666666666666,0.03557418196368567,4096,542172,544722

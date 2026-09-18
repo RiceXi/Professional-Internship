@@ -1,0 +1,1513 @@
+{
+  "kind": "azure-llm-trace",
+  "origin": "Azure/AzurePublicDataset data/AzureLLMInferenceTrace_conv.csv (2026-09-19)",
+  "note": "real arrivals and lengths; tick=0.05s per decode step",
+  "dropped_too_long": 20,
+  "geometry": {
+    "frames": 128,
+    "block_size": 16,
+    "host_pages": 128
+  },
+  "entries": [
+    {
+      "arrival": 0,
+      "tokens": 418,
+      "maximum": 2048
+    },
+    {
+      "arrival": 86,
+      "tokens": 505,
+      "maximum": 2048
+    },
+    {
+      "arrival": 91,
+      "tokens": 934,
+      "maximum": 2048
+    },
+    {
+      "arrival": 94,
+      "tokens": 107,
+      "maximum": 2048
+    },
+    {
+      "arrival": 118,
+      "tokens": 107,
+      "maximum": 2048
+    },
+    {
+      "arrival": 126,
+      "tokens": 465,
+      "maximum": 2048
+    },
+    {
+      "arrival": 155,
+      "tokens": 1455,
+      "maximum": 2048
+    },
+    {
+      "arrival": 165,
+      "tokens": 472,
+      "maximum": 2048
+    },
+    {
+      "arrival": 167,
+      "tokens": 256,
+      "maximum": 2048
+    },
+    {
+      "arrival": 169,
+      "tokens": 361,
+      "maximum": 2048
+    },
+    {
+      "arrival": 174,
+      "tokens": 518,
+      "maximum": 2048
+    },
+    {
+      "arrival": 189,
+      "tokens": 453,
+      "maximum": 2048
+    },
+    {
+      "arrival": 192,
+      "tokens": 1489,
+      "maximum": 2048
+    },
+    {
+      "arrival": 211,
+      "tokens": 479,
+      "maximum": 2048
+    },
+    {
+      "arrival": 223,
+      "tokens": 521,
+      "maximum": 2048
+    },
+    {
+      "arrival": 229,
+      "tokens": 132,
+      "maximum": 2048
+    },
+    {
+      "arrival": 237,
+      "tokens": 443,
+      "maximum": 2048
+    },
+    {
+      "arrival": 258,
+      "tokens": 368,
+      "maximum": 2048
+    },
+    {
+      "arrival": 261,
+      "tokens": 1495,
+      "maximum": 2048
+    },
+    {
+      "arrival": 261,
+      "tokens": 349,
+      "maximum": 2048
+    },
+    {
+      "arrival": 281,
+      "tokens": 335,
+      "maximum": 2048
+    },
+    {
+      "arrival": 282,
+      "tokens": 442,
+      "maximum": 2048
+    },
+    {
+      "arrival": 356,
+      "tokens": 350,
+      "maximum": 2048
+    },
+    {
+      "arrival": 363,
+      "tokens": 320,
+      "maximum": 2048
+    },
+    {
+      "arrival": 369,
+      "tokens": 476,
+      "maximum": 2048
+    },
+    {
+      "arrival": 398,
+      "tokens": 107,
+      "maximum": 2048
+    },
+    {
+      "arrival": 410,
+      "tokens": 304,
+      "maximum": 2048
+    },
+    {
+      "arrival": 413,
+      "tokens": 408,
+      "maximum": 2048
+    },
+    {
+      "arrival": 419,
+      "tokens": 210,
+      "maximum": 2048
+    },
+    {
+      "arrival": 427,
+      "tokens": 420,
+      "maximum": 2048
+    },
+    {
+      "arrival": 428,
+      "tokens": 479,
+      "maximum": 2048
+    },
+    {
+      "arrival": 454,
+      "tokens": 298,
+      "maximum": 2048
+    },
+    {
+      "arrival": 460,
+      "tokens": 390,
+      "maximum": 2048
+    },
+    {
+      "arrival": 467,
+      "tokens": 390,
+      "maximum": 2048
+    },
+    {
+      "arrival": 483,
+      "tokens": 203,
+      "maximum": 2048
+    },
+    {
+      "arrival": 495,
+      "tokens": 525,
+      "maximum": 2048
+    },
+    {
+      "arrival": 498,
+      "tokens": 285,
+      "maximum": 2048
+    },
+    {
+      "arrival": 502,
+      "tokens": 341,
+      "maximum": 2048
+    },
+    {
+      "arrival": 504,
+      "tokens": 377,
+      "maximum": 2048
+    },
+    {
+      "arrival": 506,
+      "tokens": 107,
+      "maximum": 2048
+    },
+    {
+      "arrival": 518,
+      "tokens": 1488,
+      "maximum": 2048
+    },
+    {
+      "arrival": 525,
+      "tokens": 446,
+      "maximum": 2048
+    },
+    {
+      "arrival": 528,
+      "tokens": 514,
+      "maximum": 2048
+    },
+    {
+      "arrival": 529,
+      "tokens": 411,
+      "maximum": 2048
+    },
+    {
+      "arrival": 547,
+      "tokens": 420,
+      "maximum": 2048
+    },
+    {
+      "arrival": 551,
+      "tokens": 417,
+      "maximum": 2048
+    },
+    {
+      "arrival": 562,
+      "tokens": 238,
+      "maximum": 2048
+    },
+    {
+      "arrival": 567,
+      "tokens": 581,
+      "maximum": 2048
+    },
+    {
+      "arrival": 572,
+      "tokens": 1510,
+      "maximum": 2048
+    },
+    {
+      "arrival": 572,
+      "tokens": 1278,
+      "maximum": 2048
+    },
+    {
+      "arrival": 575,
+      "tokens": 436,
+      "maximum": 2048
+    },
+    {
+      "arrival": 587,
+      "tokens": 107,
+      "maximum": 2048
+    },
+    {
+      "arrival": 604,
+      "tokens": 478,
+      "maximum": 2048
+    },
+    {
+      "arrival": 625,
+      "tokens": 395,
+      "maximum": 2048
+    },
+    {
+      "arrival": 632,
+      "tokens": 1479,
+      "maximum": 2048
+    },
+    {
+      "arrival": 635,
+      "tokens": 538,
+      "maximum": 2048
+    },
+    {
+      "arrival": 638,
+      "tokens": 478,
+      "maximum": 2048
+    },
+    {
+      "arrival": 648,
+      "tokens": 1428,
+      "maximum": 2048
+    },
+    {
+      "arrival": 665,
+      "tokens": 1361,
+      "maximum": 2048
+    },
+    {
+      "arrival": 668,
+      "tokens": 420,
+      "maximum": 2048
+    },
+    {
+      "arrival": 670,
+      "tokens": 992,
+      "maximum": 2048
+    },
+    {
+      "arrival": 671,
+      "tokens": 434,
+      "maximum": 2048
+    },
+    {
+      "arrival": 673,
+      "tokens": 338,
+      "maximum": 2048
+    },
+    {
+      "arrival": 675,
+      "tokens": 1533,
+      "maximum": 2048
+    },
+    {
+      "arrival": 676,
+      "tokens": 281,
+      "maximum": 2048
+    },
+    {
+      "arrival": 679,
+      "tokens": 1492,
+      "maximum": 2048
+    },
+    {
+      "arrival": 695,
+      "tokens": 1479,
+      "maximum": 2048
+    },
+    {
+      "arrival": 706,
+      "tokens": 502,
+      "maximum": 2048
+    },
+    {
+      "arrival": 723,
+      "tokens": 1481,
+      "maximum": 2048
+    },
+    {
+      "arrival": 730,
+      "tokens": 365,
+      "maximum": 2048
+    },
+    {
+      "arrival": 737,
+      "tokens": 1530,
+      "maximum": 2048
+    },
+    {
+      "arrival": 742,
+      "tokens": 95,
+      "maximum": 2048
+    },
+    {
+      "arrival": 750,
+      "tokens": 1474,
+      "maximum": 2048
+    },
+    {
+      "arrival": 763,
+      "tokens": 432,
+      "maximum": 2048
+    },
+    {
+      "arrival": 771,
+      "tokens": 1498,
+      "maximum": 2048
+    },
+    {
+      "arrival": 776,
+      "tokens": 1490,
+      "maximum": 2048
+    },
+    {
+      "arrival": 784,
+      "tokens": 1597,
+      "maximum": 2048
+    },
+    {
+      "arrival": 786,
+      "tokens": 1544,
+      "maximum": 2048
+    },
+    {
+      "arrival": 793,
+      "tokens": 482,
+      "maximum": 2048
+    },
+    {
+      "arrival": 793,
+      "tokens": 1518,
+      "maximum": 2048
+    },
+    {
+      "arrival": 801,
+      "tokens": 209,
+      "maximum": 2048
+    },
+    {
+      "arrival": 810,
+      "tokens": 1517,
+      "maximum": 2048
+    },
+    {
+      "arrival": 823,
+      "tokens": 329,
+      "maximum": 2048
+    },
+    {
+      "arrival": 827,
+      "tokens": 515,
+      "maximum": 2048
+    },
+    {
+      "arrival": 847,
+      "tokens": 1536,
+      "maximum": 2048
+    },
+    {
+      "arrival": 851,
+      "tokens": 385,
+      "maximum": 2048
+    },
+    {
+      "arrival": 851,
+      "tokens": 491,
+      "maximum": 2048
+    },
+    {
+      "arrival": 851,
+      "tokens": 1519,
+      "maximum": 2048
+    },
+    {
+      "arrival": 851,
+      "tokens": 1241,
+      "maximum": 2048
+    },
+    {
+      "arrival": 854,
+      "tokens": 1281,
+      "maximum": 2048
+    },
+    {
+      "arrival": 854,
+      "tokens": 1292,
+      "maximum": 2048
+    },
+    {
+      "arrival": 854,
+      "tokens": 1611,
+      "maximum": 2048
+    },
+    {
+      "arrival": 856,
+      "tokens": 1302,
+      "maximum": 2048
+    },
+    {
+      "arrival": 860,
+      "tokens": 387,
+      "maximum": 2048
+    },
+    {
+      "arrival": 864,
+      "tokens": 393,
+      "maximum": 2048
+    },
+    {
+      "arrival": 872,
+      "tokens": 504,
+      "maximum": 2048
+    },
+    {
+      "arrival": 872,
+      "tokens": 1589,
+      "maximum": 2048
+    },
+    {
+      "arrival": 876,
+      "tokens": 257,
+      "maximum": 2048
+    },
+    {
+      "arrival": 878,
+      "tokens": 1469,
+      "maximum": 2048
+    },
+    {
+      "arrival": 878,
+      "tokens": 1496,
+      "maximum": 2048
+    },
+    {
+      "arrival": 881,
+      "tokens": 1500,
+      "maximum": 2048
+    },
+    {
+      "arrival": 881,
+      "tokens": 1553,
+      "maximum": 2048
+    },
+    {
+      "arrival": 897,
+      "tokens": 1528,
+      "maximum": 2048
+    },
+    {
+      "arrival": 900,
+      "tokens": 1479,
+      "maximum": 2048
+    },
+    {
+      "arrival": 901,
+      "tokens": 1486,
+      "maximum": 2048
+    },
+    {
+      "arrival": 902,
+      "tokens": 1283,
+      "maximum": 2048
+    },
+    {
+      "arrival": 902,
+      "tokens": 143,
+      "maximum": 2048
+    },
+    {
+      "arrival": 903,
+      "tokens": 963,
+      "maximum": 2048
+    },
+    {
+      "arrival": 905,
+      "tokens": 1460,
+      "maximum": 2048
+    },
+    {
+      "arrival": 910,
+      "tokens": 1583,
+      "maximum": 2048
+    },
+    {
+      "arrival": 911,
+      "tokens": 1467,
+      "maximum": 2048
+    },
+    {
+      "arrival": 924,
+      "tokens": 1560,
+      "maximum": 2048
+    },
+    {
+      "arrival": 925,
+      "tokens": 1385,
+      "maximum": 2048
+    },
+    {
+      "arrival": 928,
+      "tokens": 1384,
+      "maximum": 2048
+    },
+    {
+      "arrival": 933,
+      "tokens": 380,
+      "maximum": 2048
+    },
+    {
+      "arrival": 944,
+      "tokens": 414,
+      "maximum": 2048
+    },
+    {
+      "arrival": 949,
+      "tokens": 1785,
+      "maximum": 2048
+    },
+    {
+      "arrival": 955,
+      "tokens": 1635,
+      "maximum": 2048
+    },
+    {
+      "arrival": 959,
+      "tokens": 1391,
+      "maximum": 2048
+    },
+    {
+      "arrival": 961,
+      "tokens": 1584,
+      "maximum": 2048
+    },
+    {
+      "arrival": 963,
+      "tokens": 1526,
+      "maximum": 2048
+    },
+    {
+      "arrival": 966,
+      "tokens": 435,
+      "maximum": 2048
+    },
+    {
+      "arrival": 974,
+      "tokens": 1651,
+      "maximum": 2048
+    },
+    {
+      "arrival": 980,
+      "tokens": 1391,
+      "maximum": 2048
+    },
+    {
+      "arrival": 985,
+      "tokens": 426,
+      "maximum": 2048
+    },
+    {
+      "arrival": 991,
+      "tokens": 266,
+      "maximum": 2048
+    },
+    {
+      "arrival": 992,
+      "tokens": 1417,
+      "maximum": 2048
+    },
+    {
+      "arrival": 993,
+      "tokens": 1306,
+      "maximum": 2048
+    },
+    {
+      "arrival": 994,
+      "tokens": 1488,
+      "maximum": 2048
+    },
+    {
+      "arrival": 995,
+      "tokens": 1555,
+      "maximum": 2048
+    },
+    {
+      "arrival": 995,
+      "tokens": 1434,
+      "maximum": 2048
+    },
+    {
+      "arrival": 997,
+      "tokens": 1319,
+      "maximum": 2048
+    },
+    {
+      "arrival": 998,
+      "tokens": 1614,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1005,
+      "tokens": 1367,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1010,
+      "tokens": 1493,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1013,
+      "tokens": 389,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1013,
+      "tokens": 389,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1013,
+      "tokens": 1516,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1015,
+      "tokens": 1364,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1018,
+      "tokens": 1516,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1018,
+      "tokens": 1418,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1020,
+      "tokens": 509,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1022,
+      "tokens": 1497,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1027,
+      "tokens": 1529,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1030,
+      "tokens": 1293,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1032,
+      "tokens": 869,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1034,
+      "tokens": 1519,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1039,
+      "tokens": 417,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1042,
+      "tokens": 1352,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1045,
+      "tokens": 1492,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1045,
+      "tokens": 1525,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1045,
+      "tokens": 442,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1058,
+      "tokens": 1287,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1063,
+      "tokens": 346,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1063,
+      "tokens": 1328,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1071,
+      "tokens": 426,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1074,
+      "tokens": 1576,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1080,
+      "tokens": 361,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1080,
+      "tokens": 1469,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1082,
+      "tokens": 1415,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1102,
+      "tokens": 1481,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1102,
+      "tokens": 505,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1107,
+      "tokens": 1659,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1132,
+      "tokens": 1482,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1139,
+      "tokens": 1641,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1144,
+      "tokens": 1512,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1146,
+      "tokens": 1375,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1148,
+      "tokens": 1048,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1149,
+      "tokens": 1007,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1150,
+      "tokens": 1428,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1150,
+      "tokens": 512,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1150,
+      "tokens": 991,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1152,
+      "tokens": 1443,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1165,
+      "tokens": 494,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1169,
+      "tokens": 426,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1200,
+      "tokens": 294,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1203,
+      "tokens": 1532,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1204,
+      "tokens": 1364,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1209,
+      "tokens": 1900,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1213,
+      "tokens": 488,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1216,
+      "tokens": 414,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1217,
+      "tokens": 1384,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1217,
+      "tokens": 1468,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1223,
+      "tokens": 1415,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1225,
+      "tokens": 1552,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1226,
+      "tokens": 1422,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1226,
+      "tokens": 1276,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1235,
+      "tokens": 1489,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1237,
+      "tokens": 317,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1237,
+      "tokens": 1248,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1238,
+      "tokens": 499,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1239,
+      "tokens": 1644,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1243,
+      "tokens": 1483,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1246,
+      "tokens": 1509,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1250,
+      "tokens": 1533,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1257,
+      "tokens": 1415,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1261,
+      "tokens": 172,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1262,
+      "tokens": 447,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1272,
+      "tokens": 1485,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1282,
+      "tokens": 371,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1284,
+      "tokens": 1554,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1298,
+      "tokens": 132,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1298,
+      "tokens": 299,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1299,
+      "tokens": 556,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1300,
+      "tokens": 477,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1301,
+      "tokens": 1442,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1301,
+      "tokens": 1495,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1301,
+      "tokens": 948,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1307,
+      "tokens": 426,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1311,
+      "tokens": 1474,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1314,
+      "tokens": 1434,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1316,
+      "tokens": 1306,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1328,
+      "tokens": 1529,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1330,
+      "tokens": 1461,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1332,
+      "tokens": 1539,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1333,
+      "tokens": 495,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1334,
+      "tokens": 1646,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1334,
+      "tokens": 382,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1345,
+      "tokens": 523,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1349,
+      "tokens": 220,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1359,
+      "tokens": 1642,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1359,
+      "tokens": 371,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1359,
+      "tokens": 368,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1374,
+      "tokens": 1461,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1380,
+      "tokens": 354,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1402,
+      "tokens": 1411,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1409,
+      "tokens": 428,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1418,
+      "tokens": 1432,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1420,
+      "tokens": 331,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1431,
+      "tokens": 1543,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1439,
+      "tokens": 1506,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1445,
+      "tokens": 1296,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1449,
+      "tokens": 386,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1454,
+      "tokens": 1523,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1455,
+      "tokens": 1428,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1461,
+      "tokens": 484,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1464,
+      "tokens": 1473,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1466,
+      "tokens": 1459,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1470,
+      "tokens": 1481,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1477,
+      "tokens": 1547,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1480,
+      "tokens": 1493,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1481,
+      "tokens": 1364,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1506,
+      "tokens": 1450,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1513,
+      "tokens": 1491,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1515,
+      "tokens": 1472,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1517,
+      "tokens": 483,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1517,
+      "tokens": 219,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1522,
+      "tokens": 512,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1526,
+      "tokens": 1415,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1531,
+      "tokens": 1612,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1535,
+      "tokens": 1413,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1546,
+      "tokens": 954,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1551,
+      "tokens": 1570,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1565,
+      "tokens": 1708,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1566,
+      "tokens": 1554,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1574,
+      "tokens": 338,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1574,
+      "tokens": 1842,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1575,
+      "tokens": 174,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1585,
+      "tokens": 511,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1586,
+      "tokens": 1476,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1586,
+      "tokens": 422,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1589,
+      "tokens": 1451,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1589,
+      "tokens": 309,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1596,
+      "tokens": 368,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1596,
+      "tokens": 95,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1596,
+      "tokens": 1517,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1600,
+      "tokens": 1450,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1604,
+      "tokens": 1420,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1608,
+      "tokens": 1782,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1608,
+      "tokens": 1454,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1618,
+      "tokens": 1396,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1623,
+      "tokens": 1634,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1633,
+      "tokens": 1486,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1641,
+      "tokens": 1623,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1642,
+      "tokens": 1262,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1648,
+      "tokens": 1519,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1650,
+      "tokens": 1474,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1658,
+      "tokens": 1498,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1675,
+      "tokens": 1493,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1676,
+      "tokens": 1560,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1681,
+      "tokens": 395,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1691,
+      "tokens": 492,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1692,
+      "tokens": 456,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1694,
+      "tokens": 1458,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1698,
+      "tokens": 1520,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1699,
+      "tokens": 1513,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1702,
+      "tokens": 1543,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1709,
+      "tokens": 305,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1715,
+      "tokens": 1449,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1716,
+      "tokens": 1475,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1725,
+      "tokens": 1498,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1731,
+      "tokens": 1578,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1734,
+      "tokens": 485,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1739,
+      "tokens": 1512,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1742,
+      "tokens": 851,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1743,
+      "tokens": 1469,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1747,
+      "tokens": 107,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1747,
+      "tokens": 1324,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1748,
+      "tokens": 1534,
+      "maximum": 2048
+    },
+    {
+      "arrival": 1749,
+      "tokens": 1445,
+      "maximum": 2048
+    }
+  ]
+}
