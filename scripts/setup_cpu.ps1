@@ -29,42 +29,15 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $Root = Split-Path -Parent $PSScriptRoot
-
-function Get-PythonCommand {
-    param([string]$Requested)
-    if ($Requested) {
-        $resolved = Get-Command $Requested -ErrorAction SilentlyContinue
-        if ($resolved) { return , @($resolved.Source) }
-        if (Test-Path -LiteralPath $Requested) { return , @((Resolve-Path -LiteralPath $Requested).Path) }
-        throw "Python interpreter not found: $Requested"
-    }
-    if (Get-Command py -ErrorAction SilentlyContinue) {
-        & py -3 --version *> $null
-        if ($LASTEXITCODE -eq 0) { return , @('py', '-3') }
-    }
-    foreach ($name in 'python', 'python3') {
-        $candidate = Get-Command $name -ErrorAction SilentlyContinue
-        if ($candidate) { return , @($candidate.Source) }
-    }
-    throw 'Python 3.10+ was not found. Install it from https://www.python.org/downloads/ or pass -Python <path>.'
-}
-
-function Invoke-PythonStep {
-    param([string[]]$Command, [string[]]$Arguments, [string]$Label)
-    Write-Host "==> $Label"
-    $executable = $Command[0]
-    $arguments = @($Command | Select-Object -Skip 1) + $Arguments
-    & $executable @arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "step failed ($Label): $executable $($arguments -join ' ')"
-    }
-}
+. (Join-Path $PSScriptRoot 'python_env.ps1')
 
 Push-Location $Root
 try {
     $basePython = Get-PythonCommand -Requested $Python
-    $version = & $basePython[0] @($basePython | Select-Object -Skip 1) -c "import sys; print('%d.%d' % sys.version_info[:2])"
-    if ($LASTEXITCODE -ne 0) { throw 'failed to query the Python version' }
+    $probe = Invoke-NativeCommand -Command $basePython `
+        -Arguments @('-c', "import sys; print('%d.%d' % sys.version_info[:2])")
+    $version = [string]($probe.Output | Select-Object -Last 1)
+    $version = $version.Trim()
     if ([version]$version -lt [version]'3.10') {
         throw "Python 3.10+ is required, found $version"
     }
