@@ -14,3 +14,13 @@ jobs:
       - run: python -m pip install -r requirements-cpu.lock
       - run: python test/run_cpu.py --coverage
       - run: python simulate.py --seed 42
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Interpreter discovery tests
+        shell: powershell
+        run: .\test\powershell\test_python_env.ps1
+      - name: CPU setup and tests
+        shell: powershell
+        run: .\scripts\setup_cpu.ps1
