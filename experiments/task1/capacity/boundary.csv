@@ -1,0 +1,10 @@
+mode,tokens,max_concurrency_no_reject,max_tested_concurrency,completed_at_max_tested
+contiguous,256,1,64,1
+paged,256,16,64,0
+swap,256,16,64,0
+contiguous,1024,1,64,1
+paged,1024,4,64,0
+swap,1024,4,64,0
+contiguous,4096,1,64,1
+paged,4096,1,64,0
+swap,4096,1,64,0
