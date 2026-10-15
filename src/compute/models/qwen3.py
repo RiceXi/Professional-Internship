@@ -28,11 +28,18 @@ class Qwen3MLP(nn.Module):
         self.act_fn = SiluAndMul()
 
     def forward(self, x):
+        """SwiGLU 前向：融合的 gate/up 投影 → SiLU·gate → down 投影。"""
         x = self.gate_up_proj(x)
         return self.down_proj(self.act_fn(x))
 
 
 class Qwen3Attention(nn.Module):
+    """Qwen3 注意力层：融合 QKV 投影 + Q/K 归一化 + RoPE + FlashAttention。
+
+    q_proj/k_proj/v_proj 融合为单个 qkv_proj；Q、K 先过 RMSNorm（Qwen3 的
+    QK-Norm 结构）再应用 RoPE，最后交给自定义 attention 算子计算。
+    """
+
     def __init__(
         self,
         hidden_size: int,
@@ -67,6 +74,7 @@ class Qwen3Attention(nn.Module):
         self.k_norm = RMSNorm(self.head_dim, eps=rms_norm_eps)
 
     def forward(self, positions: torch.Tensor, hidden_states: torch.Tensor, attn: AttnInputs):
+        """QKV 投影 → 拆分/QK-Norm/RoPE → attention → 输出投影。"""
         qkv = self.qkv_proj(hidden_states)
         q, k, v = self._split_norm_rope(positions, qkv)
         return self.o_proj(self.attn(q, k, v, attn))
@@ -102,6 +110,7 @@ class Qwen3DecoderLayer(nn.Module):
         self.post_attention_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def forward(self, positions, hidden_states, residual: torch.Tensor | None, attn: AttnInputs):
+        """标准 decoder 层：pre-norm → attention → post-norm → MLP，维护残差流。"""
         hidden_states, residual = self.input_layernorm(hidden_states, residual)
         hidden_states = self.self_attn(positions, hidden_states, attn)
         hidden_states, residual = self.post_attention_layernorm(hidden_states, residual)
@@ -118,6 +127,7 @@ class Qwen3Model(nn.Module):
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def forward(self, input_ids: torch.Tensor, positions: torch.Tensor, attn: AttnInputs):
+        """嵌入 → 逐层 decoder → 最终 RMSNorm，返回归一化后的 hidden states。"""
         h, residual = self.embed_tokens(input_ids), None
         for layer in self.layers:
             h, residual = layer(positions, h, residual, attn)
@@ -131,12 +141,15 @@ class Qwen3ForCausalLM(nn.Module):
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
     def forward(self, input_ids, positions, attn: AttnInputs):
+        """返回模型主干的 hidden states（不含 lm_head）。"""
         return self.model(input_ids, positions, attn)
 
     def compute_logits(self, hidden_states):
+        """hidden states → logits（lm_head 投影，输出维度为词表大小）。"""
         return self.lm_head(hidden_states)
 
     def load_weights(self, weights):
+        """加载 HF 权重并融合：q/k/v → qkv_proj、gate/up → gate_up_proj。"""
         params = dict(self.named_parameters())
         loaded = set()
         skipped = []
