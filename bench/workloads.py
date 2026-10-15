@@ -114,14 +114,19 @@ def load_azure_csv(path: str | Path, *, tick_seconds: float = 0.05, max_tokens: 
             stamp = parse_timestamp(row['TIMESTAMP'])
             if first is None:
                 first = stamp
-            length = int(row['ContextTokens']) + int(row['GeneratedTokens'])
+            prompt_tokens = int(row['ContextTokens'])
+            generated_tokens = int(row['GeneratedTokens'])
+            if prompt_tokens < 0 or generated_tokens < 0:
+                raise ValueError(f'{path}: negative token count')
+            length = prompt_tokens + generated_tokens
             if length <= 0:
                 raise ValueError(f'{path}: non-positive sequence length')
             if length > max_tokens:
                 dropped += 1
                 continue
             arrival = int(round((stamp - first).total_seconds() / tick_seconds))
-            requests.append(Request(len(requests), arrival, length, max_tokens))
+            requests.append(Request(len(requests), arrival, length, max_tokens,
+                                    prompt_tokens=prompt_tokens))
             if limit is not None and len(requests) == limit:
                 break
     if not requests:
@@ -131,7 +136,8 @@ def load_azure_csv(path: str | Path, *, tick_seconds: float = 0.05, max_tokens: 
         source=str(path),
         requests=requests,
         dropped_too_long=dropped,
-        note=f'real arrivals and lengths; tick={tick_seconds}s per decode step',
+        note=(f'real arrivals, prompt lengths and generated lengths; '
+              f'tick={tick_seconds}s per decode step'),
     )
 
 
@@ -167,7 +173,8 @@ def load_sharegpt(path: str | Path, *, tick_seconds: float = 0.05, max_tokens: i
     if not kept:
         raise ValueError(f'{path}: no conversation fits max_tokens={max_tokens}')
     arrivals = _poisson_arrivals(arrival_rate, len(kept), seed)
-    requests = [Request(i, arrivals[i], prompt + output, max_tokens)
+    requests = [Request(i, arrivals[i], prompt + output, max_tokens,
+                        prompt_tokens=prompt)
                 for i, (prompt, output) in enumerate(kept)]
     return LoadedTrace(
         kind='sharegpt',
@@ -204,7 +211,8 @@ def load_longbench(path: str | Path, *, tick_seconds: float = 0.05, max_tokens: 
     if not kept:
         raise ValueError(f'{path}: no sample fits max_tokens={max_tokens}')
     arrivals = _poisson_arrivals(arrival_rate, len(kept), seed)
-    requests = [Request(i, arrivals[i], prompt + output, max_tokens)
+    requests = [Request(i, arrivals[i], prompt + output, max_tokens,
+                        prompt_tokens=prompt)
                 for i, (prompt, output) in enumerate(kept)]
     return LoadedTrace(
         kind='longbench',
@@ -225,8 +233,16 @@ def load_lengths(path: str | Path) -> LoadedTrace:
     raw_geometry = payload.get('geometry')
     geometry = Geometry(int(raw_geometry['frames']), int(raw_geometry['block_size']),
                         int(raw_geometry['host_pages'])) if raw_geometry else None
-    requests = [Request(i, int(e['arrival']), int(e['tokens']), int(e['maximum']))
-                for i, e in enumerate(entries)]
+    requests = []
+    for i, entry in enumerate(entries):
+        prompt_tokens = int(entry.get('prompt_tokens', 0))
+        tokens = int(entry['tokens'])
+        if 'generated_tokens' in entry:
+            generated_tokens = int(entry['generated_tokens'])
+            if prompt_tokens + generated_tokens != tokens:
+                raise ValueError(f'{path}: entry {i} token components do not match total')
+        requests.append(Request(i, int(entry['arrival']), tokens, int(entry['maximum']),
+                                prompt_tokens=prompt_tokens))
     return LoadedTrace(
         kind=payload.get('kind', 'lengths'),
         source=f"{path} (from {payload.get('origin', 'unknown')})",
@@ -247,7 +263,9 @@ def dump_lengths(trace: LoadedTrace, path: str | Path, *, origin: str | None = N
         'note': trace.note,
         'dropped_too_long': trace.dropped_too_long,
         'geometry': (asdict(geometry) if geometry else None),
-        'entries': [{'arrival': r.arrival, 'tokens': r.tokens, 'maximum': r.maximum}
+        'entries': [{'arrival': r.arrival, 'prompt_tokens': r.prompt_tokens,
+                     'generated_tokens': r.generated_tokens,
+                     'tokens': r.tokens, 'maximum': r.maximum}
                     for r in trace.requests],
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

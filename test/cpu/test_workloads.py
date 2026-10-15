@@ -59,6 +59,8 @@ class AzureTraceTests(unittest.TestCase):
         self.assertEqual(loaded.kind, 'azure-llm-trace')
         self.assertEqual([r.arrival for r in loaded.requests], [0, 4])
         self.assertEqual([r.tokens for r in loaded.requests], [374 + 44, 396 + 109])
+        self.assertEqual([r.prompt_tokens for r in loaded.requests], [374, 396])
+        self.assertEqual([r.generated_tokens for r in loaded.requests], [44, 109])
         self.assertEqual({r.maximum for r in loaded.requests}, {1024})
         self.assertEqual(loaded.dropped_too_long, 1)
         self.assertEqual([r.rid for r in loaded.requests], [0, 1])
@@ -84,6 +86,8 @@ class ConversationDatasetTests(unittest.TestCase):
             estimate_tokens('Paging splits memory into fixed size pages.')
         self.assertEqual(len(first), 2)
         self.assertEqual(first.requests[0].tokens, expected)
+        self.assertEqual(first.requests[0].prompt_tokens,
+                         estimate_tokens('Explain paging in one paragraph.'))
         self.assertEqual(first.dropped_too_long, 1)
         self.assertEqual([r.arrival for r in first.requests], [r.arrival for r in second.requests])
         self.assertNotEqual([r.arrival for r in first.requests], [r.arrival for r in other.requests])
@@ -109,6 +113,8 @@ class ConversationDatasetTests(unittest.TestCase):
         self.assertEqual(len(loaded), 2)
         prompt = f"{'context ' * 40}\nSummarise the passage.".strip()
         self.assertEqual(loaded.requests[0].tokens, estimate_tokens(prompt) + 32)
+        self.assertEqual(loaded.requests[0].prompt_tokens, estimate_tokens(prompt))
+        self.assertEqual(loaded.requests[0].generated_tokens, 32)
         self.assertEqual(loaded.requests[0].maximum, 8192)
 
     def test_longbench_rejects_missing_fields_and_oversized_samples(self):
@@ -123,7 +129,8 @@ class ConversationDatasetTests(unittest.TestCase):
 
 class LengthDistributionTests(unittest.TestCase):
     def test_dump_and_load_preserve_requests_and_geometry(self):
-        trace_requests = [Request(0, 0, 40, 128), Request(1, 3, 100, 128)]
+        trace_requests = [Request(0, 0, 40, 128, prompt_tokens=30),
+                          Request(1, 3, 100, 128, prompt_tokens=80)]
         loaded = LoadedTrace(kind='azure-llm-trace', source='unit', requests=trace_requests,
                              note='unit test')
         with tempfile.TemporaryDirectory() as raw:
@@ -134,14 +141,21 @@ class LengthDistributionTests(unittest.TestCase):
         self.assertEqual(payload['geometry'], {'frames': 8, 'block_size': 4, 'host_pages': 16})
         self.assertEqual(payload['origin'], 'unit-source')
         self.assertNotIn('value', json.dumps(payload))
-        self.assertEqual([(r.arrival, r.tokens, r.maximum) for r in replay.requests],
-                         [(0, 40, 128), (3, 100, 128)])
+        self.assertEqual([(r.arrival, r.prompt_tokens, r.generated_tokens,
+                           r.tokens, r.maximum) for r in replay.requests],
+                         [(0, 30, 10, 40, 128), (3, 80, 20, 100, 128)])
         self.assertEqual(replay.geometry, Geometry(8, 4, 16))
         self.assertIn('unit-source', replay.source)
 
     def test_invalid_lengths_file_is_rejected(self):
         with tempfile.TemporaryDirectory() as raw:
             path = write(Path(raw), 'empty.json', json.dumps({'entries': []}))
+            with self.assertRaises(ValueError):
+                load_lengths(path)
+            path = write(Path(raw), 'mismatch.json', json.dumps({'entries': [{
+                'arrival': 0, 'prompt_tokens': 8, 'generated_tokens': 3,
+                'tokens': 10, 'maximum': 16,
+            }]}))
             with self.assertRaises(ValueError):
                 load_lengths(path)
 

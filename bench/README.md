@@ -20,7 +20,7 @@ python3 bench/bench_trace.py --trace <trace.csv> --format azure \
   --output experiments/task1/trace --export-lengths experiments/task1/trace/azure-sample-lengths.json
 ```
 
-前面的内存实验使用合成负载（长度 3～20 token）。本脚本改用真实推理轨迹或对话数据集，输出与合成实验相同的汇总列，便于并列比较。
+前面的内存实验使用合成负载（长度 3～20 token）。本脚本改用真实推理轨迹或对话数据集，并分别保留 prompt 与 generated token：请求到达时一次性建立 prompt KV，之后每个 tick 只增长一个 generated token。
 
 | `--format` | 输入 | 到达时间 |
 |---|---|---|
@@ -29,15 +29,18 @@ python3 bench/bench_trace.py --trace <trace.csv> --format azure \
 | `longbench` | LongBench jsonl（`context`、`input`） | 泊松流；输出长度用 `--output-tokens` 假定 |
 | `lengths` | 本脚本导出的长度分布（不含原文） | 记录中的 tick 原样重放 |
 
-建模约定：一个 tick 对应一次解码迭代，`--tick-seconds`（默认 0.05 s）把墙钟时间换算成 tick；`--max-tokens` 是连续基线为每条请求预留的 `max_model_len`，超长请求按拒绝处理并计数，不做静默截断。`longbench` 与 `sharegpt` 的文本长度用字符数估算，需要精确值时在 `bench/workloads.py` 中传入自己的分词器。
+建模约定：请求到达时建立全部 prompt KV，一个 tick 对应随后的一次解码迭代；`--tick-seconds`（默认 0.05 s）只把墙钟到达时间换算成 tick。`--max-tokens` 是连续基线为每条请求预留的 `max_model_len`，超长请求按拒绝处理并计数，不做静默截断。`longbench` 与 `sharegpt` 默认按字符估算 token；安装 `transformers` 后可传 `--tokenizer <HF 名称或本地路径>` 使用精确分词器。
+
+Azure 数据来自 [Azure LLM inference trace 2023](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2023.md) 的[对话服务 CSV](https://github.com/Azure/AzurePublicDataset/blob/master/data/AzureLLMInferenceTrace_conv.csv)，按 CC-BY Attribution License 使用。引用：Pratyush Patel 等，*Splitwise: Efficient Generative LLM Inference Using Phase Splitting*，ISCA 2024。
 
 仓库归档的 Azure 轨迹结果位于 `experiments/task1/trace/`。归档时只保存推导出的长度分布，不含对话原文，重放命令：
 
 ```bash
-python3 bench/bench_trace.py --trace experiments/task1/trace/azure-sample-lengths.json --format lengths
+python3 bench/bench_trace.py --trace experiments/task1/trace/azure-sample-lengths.json \
+  --format lengths --output experiments/local/trace-replay
 ```
 
-该命令约需 10 秒，结果与归档的 `summary.csv` 逐列一致。测试默认只校验连续预分配与按需分页两行，设置 `KV_TRACE_SLOW_REPLAY=1` 后连同换页行一起校验。
+默认输出目录是被 Git 忽略的 `experiments/local/trace/`，因此普通重放不会覆盖归档。上面的命令将新结果写到 `experiments/local/trace-replay/`；其中 `summary.csv` 应与归档逐列一致。测试默认只校验连续预分配与按需分页两行，设置 `KV_TRACE_SLOW_REPLAY=1` 后连同换页行一起校验。
 
 ## 推理性能
 

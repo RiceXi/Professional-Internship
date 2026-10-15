@@ -13,6 +13,12 @@ class Request:
     arrival: int
     tokens: int
     maximum: int
+    prompt_tokens: int = 0
+
+    @property
+    def generated_tokens(self) -> int:
+        """Tokens decoded after the prompt KV is present at admission."""
+        return self.tokens - self.prompt_tokens
 
 
 def workload(seed: int = 42, count: int = 32) -> list[Request]:
@@ -30,7 +36,8 @@ def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size
     if len({r.rid for r in requests}) != len(requests):
         raise ValueError('duplicate request IDs')
     for r in requests:
-        if r.arrival < 0 or not 0 < r.tokens <= r.maximum:
+        if (r.arrival < 0 or not 0 < r.tokens <= r.maximum
+                or not 0 <= r.prompt_tokens <= r.tokens):
             raise ValueError('invalid request')
     memory = ContiguousMemory(frames * block_size) if mode == 'contiguous' else PagedMemory(frames, block_size, host_pages=host_pages if mode == 'swap' else 0)
     pending = sorted(requests, key=lambda r: (r.arrival, r.rid))
@@ -43,14 +50,26 @@ def simulate(requests: list[Request], mode: str, *, frames: int = 32, block_size
             t = max(t, pending[0].arrival)
         while pending and pending[0].arrival <= t:
             r = pending.pop(0)
+            sid = None
             try:
                 sid = memory.new_sequence(r.maximum) if mode == 'contiguous' else memory.new_sequence()
-                active[r.rid] = [r, sid, 0]
+                if r.prompt_tokens:
+                    memory.reserve(sid, r.prompt_tokens)
+                    if mode != 'contiguous':
+                        with memory.pin_sequences([sid]):
+                            pass  # Prompt KV must fit the physical attention working set.
+                active[r.rid] = [r, sid, r.prompt_tokens]
             except AllocationError:
+                if sid is not None:
+                    memory.free(sid)
                 records.append({'rid': r.rid, 'status': 'capacity_rejected', 'at': t})
         done = []
         for rid, (r, sid, used) in sorted(active.items()):
             try:
+                if used == r.tokens:
+                    records.append({'rid': rid, 'status': 'completed', 'at': t})
+                    done.append(rid)
+                    continue
                 memory.reserve(sid, used + 1)
                 if mode != 'contiguous':
                     with memory.pin_sequences([sid]):
