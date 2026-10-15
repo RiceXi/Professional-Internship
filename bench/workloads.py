@@ -268,7 +268,8 @@ def dump_lengths(trace: LoadedTrace, path: str | Path, *, origin: str | None = N
                      'tokens': r.tokens, 'maximum': r.maximum}
                     for r in trace.requests],
     }
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n',
+                    encoding='utf-8', newline='\n')
     return path
 
 

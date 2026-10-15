@@ -164,9 +164,10 @@ def main() -> int:
         'runs': runs,
     }
     args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / 'raw.json').write_text(json.dumps(report, ensure_ascii=False, separators=(',', ':')) + '\n')
+    (args.output / 'raw.json').write_text(
+        json.dumps(report, ensure_ascii=False, separators=(',', ':')) + '\n', newline='\n')
     with (args.output / 'summary.csv').open('w', newline='') as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
     print(f'{args.format}: {len(requests)} requests, dropped {loaded.dropped_too_long}, '
