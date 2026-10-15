@@ -32,6 +32,7 @@ class CUDAGraphRunner:
         )
 
     def capture(self) -> None:
+        """捕获 decode CUDA Graph：按档位从大到小热身并录制，多档共用一个显存池。"""
         torch.cuda.synchronize(self.device) # 等待GPU设备同步
         torch.cuda.empty_cache() # 释放空闲显存块
         self.batch.slot_mapping.fill_(-1)
@@ -60,16 +61,17 @@ class CUDAGraphRunner:
         torch.cuda.synchronize(self.device)
 
     def can_use(self, bs: int) -> bool:
+        """判断当前 batch 大小能否用 CUDA Graph 重放。"""
         return bs <= self.max_bs
 
     def replay(self, bs: int) -> torch.Tensor:
-        """ 重放 """
+        """重放对应档位的 CUDA Graph，返回本批 decode 的 hidden states。"""
         pbs = self._pad_bs(bs)
         self.graphs[pbs].replay()
         return self.outputs[:bs]
 
     def _pad_bs(self, bs: int) -> int:
-        """ 给定真实运行的 batch 大小，向上取整 """
+        """把真实 batch 大小向上取整到最近的录制档位。"""
         for b in self.bs_list:
             if b >= bs:
                 return b
@@ -77,7 +79,7 @@ class CUDAGraphRunner:
 
     @staticmethod
     def _make_bs_list(max_bs: int) -> list[int]:
-        """ 生成录制档位，稀疏采样，减少显存开销 """
+        """生成录制的 batch 档位（稀疏采样，减少显存开销）。"""
         bs = [1, 2, 4, 8] + list(range(16, max_bs + 1, 16))
         bs = [b for b in bs if b <= max_bs]
         if max_bs not in bs:
@@ -85,6 +87,7 @@ class CUDAGraphRunner:
         return bs
 
     def destroy(self) -> None:
+        """释放所有 CUDA Graph 及其专用显存池。"""
         self.graphs.clear()
         self._graph_pool = None
         del self.outputs

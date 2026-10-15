@@ -29,6 +29,18 @@ bash scripts/setup_cpu.sh
 .venv-cpu/bin/python test/run_cpu.py --coverage
 ```
 
+Windows 使用同一套流程的 PowerShell 版本，需要 Python 3.10+：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/setup_cpu.ps1
+```
+
+脚本依次创建 `.venv-cpu`、安装锁定版本的覆盖率工具并运行测试；解释器不在 PATH 时用 `-Python <路径>` 指定，只准备环境可用 `-SkipTests`。之后可单独运行：
+
+```powershell
+.venv-cpu\Scripts\python.exe test/run_cpu.py --coverage
+```
+
 测试结果保存在 `experiments/local/`。更多说明见 [test/README.md](test/README.md)。
 
 ## GPU 推理与验证

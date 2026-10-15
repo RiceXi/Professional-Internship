@@ -13,6 +13,14 @@ bash scripts/setup_cpu.sh
 
 `experiments/local/test_summary.json` 保存通过/失败/跳过、环境与源码哈希；`coverage.json` 保存逐文件行覆盖率。`--output <目录>` 可以指定归档位置。
 
+## PowerShell 入口测试
+
+```powershell
+powershell -ExecutionPolicy Bypass -File test\powershell\test_python_env.ps1
+```
+
+覆盖 `scripts/python_env.ps1` 的解释器探测：显式 `-Python` 路径、`py` 启动器可用、`py` 启动器存在但 `py -3` 失败时回退到 `python`/`python3`、候选解释器无法启动时跳过，以及最终找不到解释器时的报错。用例把伪造的启动器放在 `PATH` 最前面，不改动本机 Python 安装；最后一项会在禁用解释器的环境中运行 `scripts/setup_cpu.ps1`，确认入口不再因 `NativeCommandError` 中断。该脚本不需要 Pester，在 Windows PowerShell 5.1 与 PowerShell 7 下均可运行。
+
 ## GPU 验证
 
 ```bash

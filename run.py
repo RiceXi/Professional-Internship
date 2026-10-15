@@ -58,6 +58,10 @@ DEFAULTS = {
 
 
 def _make_engine(cfg: dict) -> Engine:
+    """根据配置字典构建 Engine。
+
+    先把模型名解析为本地路径，再组装 EngineConfig 并创建引擎。
+    """
     model_path = resolve_model_path(cfg["model"])
     print(f"Loading {model_path} ...")
     return Engine(
@@ -81,6 +85,10 @@ def _make_engine(cfg: dict) -> Engine:
 
 
 def _warmup(engine: Engine, prompt_lens: list[int]) -> float:
+    """用等长 dummy prompt 预热引擎，返回预热耗时（秒）。
+
+    预热会触发 kernel 编译与 CUDA Graph 捕获，使后续正式计时不含首次运行开销。
+    """
     warm_sp = SamplingParams(temperature=0.0, max_tokens=2, ignore_eos=True)
     return warmup_engine(
         prompt_lens,
@@ -179,6 +187,7 @@ def run_batch(cfg: dict) -> None:
 
 
 def main() -> None:
+    """CLI 入口：解析参数、合并配置文件，按需运行单条或批量推理。"""
     p = argparse.ArgumentParser(
         description="vllm-v3 FlashAttention + CUDA Graph + Continuous Batching"
     )

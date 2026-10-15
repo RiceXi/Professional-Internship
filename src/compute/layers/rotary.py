@@ -27,6 +27,7 @@ class RotaryEmbedding(nn.Module):
     def forward(
         self, positions: torch.Tensor, query: torch.Tensor, key: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
+        """应用 RoPE：把 cos/sin 缓存交给自定义 rotary_embedding 算子。"""
         # cos_sin_cache 已在 executor 加载模型后固定为 fp32（FlashInfer 要求）。
         # 不能在 forward 里惰性 .float()：torch.compile 的 CUDAGraph 会复用该临时内存，
         # 下次重放时覆盖 → "overwritten by a subsequent run"。
