@@ -1,6 +1,13 @@
 from __future__ import annotations
+
 from collections import deque
-from ..data import KVManager, ScheduledBatch, Sequence, SequenceStatus
+from typing import TYPE_CHECKING
+
+from ..data.scheduled_batch import ScheduledBatch
+from ..data.sequence import Sequence, SequenceStatus
+
+if TYPE_CHECKING:
+    from ..data.manager import KVManager
 
 
 class Scheduler:
@@ -265,8 +272,13 @@ class Scheduler:
             self.kv.sync_prefix(seq)
             seq.num_scheduled_tokens = 0
 
-            # 未完成 prompt 的 prefill chunk 本步不采样，也不判断是否完成。
-            if is_prefill and seq.num_cached_tokens < seq.num_prompt_tokens:
+            # 未完成的 prefill chunk 本步不采样，也不判断是否完成。
+            #
+            # 被抢占的序列会保留已生成的 token，但 num_cached_tokens 归零后需要
+            # 连 prompt 和已生成部分一起重算。此时 num_cached_tokens 可能已经超过
+            # num_prompt_tokens，却仍小于 num_tokens；只有调度阶段标记了本步覆盖
+            # 整条序列（need_sample）才能追加下一次采样结果。
+            if is_prefill and not seq.need_sample:
                 continue
 
             # max_tokens 小于等于 0 表示只需要处理 prompt，不生成新 token。
