@@ -11,6 +11,8 @@ bash scripts/setup_cpu.sh
 
 覆盖率统计整个 `src/memory`，通过阈值为 70%。安装 PyTorch 后，同一测试命令还会检查 CPU 张量的 COW、页往返和交换；未安装时跳过这三项。CUDA 适配代码也计入覆盖范围，但需要在 GPU 环境另行测试。
 
+`test/cpu/test_scheduler_recompute.py` 用假 KV 层直接驱动调度循环，不依赖 torch 或模型，覆盖抢占后重算跨过 prompt 边界的分块：在整条序列重算完成前不得追加采样 token。
+
 `experiments/local/test_summary.json` 保存通过/失败/跳过、环境与源码哈希；`coverage.json` 保存逐文件行覆盖率。`--output <目录>` 可以指定归档位置。
 
 ## PowerShell 入口测试
